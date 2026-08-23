@@ -11,60 +11,62 @@ permissions:
 
 jobs:
 
-  smoke:
-    name: ${{ matrix.name }}
+  linux:
+    name: Linux
     uses: sanko/workflow-testing/.github/workflows/run-direct.yml@main
     secrets: inherit
     with:
-      platform_name: ${{ matrix.name }}
-      os: ${{ matrix.os }}
-      arch: ${{ matrix.arch }}
-      toolchain: 'gcc'
-      prepare: ${{ matrix.prepare }}
-      variant: ${{ matrix.variant }}
       task: |
         perl -V
         perl hello.pl
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: 'linux-x64'
-            os: 'ubuntu-latest'
-            arch: 'x86_64'
-            prepare: ''
-          - name: 'macos-arm64'
-            os: 'macos-15'
-            arch: 'aarch64'
-            prepare: ''
-          - name: 'windows-x64'
-            os: 'windows-latest'
-            arch: 'x86_64'
-            # Windows Git Bash ships no perl; install Strawberry Perl first.
-            prepare: 'choco install strawberryperl'
-          - name: 'linux-x64-longdoubles'
-            os: 'ubuntu-latest'
-            arch: 'x86_64'
-            prepare: ''
-            variant: 'longdoubles'
+      matrix: >
+        [
+          {"platform_name":"ubuntu","os":"ubuntu-latest","arch":"x86_64","toolchain":"gcc"},
+          {"platform_name":"ubuntu","os":"ubuntu-latest","arch":"x86_64","toolchain":"gcc","variant":"longdoubles"}
+        ]
 
-  bsd-smoke:
-    name: freebsd-x86_64
+  macos:
+    name: macOS
+    uses: sanko/workflow-testing/.github/workflows/run-direct.yml@main
+    secrets: inherit
+    with:
+      task: |
+        perl -V
+        perl hello.pl
+      matrix: >
+        [
+          {"platform_name":"macos","os":"macos-15","arch":"aarch64","toolchain":"gcc"}
+        ]
+
+  windows:
+    name: Windows
+    uses: sanko/workflow-testing/.github/workflows/run-direct.yml@main
+    secrets: inherit
+    with:
+      task: |
+        perl -V
+        perl hello.pl
+      matrix: >
+        [
+          {"platform_name":"windows","os":"windows-latest","arch":"x86_64","toolchain":"gcc","prepare":"choco install strawberryperl"}
+        ]
+
+  freebsd:
+    name: FreeBSD
     uses: sanko/workflow-testing/.github/workflows/run-vm.yml@main
     secrets: inherit
     with:
-      platform_name: freebsd
-      os: 'freebsd'
       os_version: '15.0'
-      arch: 'x86_64'
-      toolchain: 'clang'
-      prepare: 'pkg install -y perl5 llvm'
       task: |
         perl -V
         perl hello.pl
+      matrix: >
+        [
+          {"platform_name":"freebsd","os":"freebsd","arch":"x86_64","toolchain":"clang","prepare":"pkg install -y perl5 llvm"}
+        ]
 
   results:
     name: Summary
     if: always()
-    needs: [smoke, bsd-smoke]
+    needs: [linux, macos, windows, freebsd]
     uses: sanko/workflow-testing/.github/workflows/results-summary.yml@main
