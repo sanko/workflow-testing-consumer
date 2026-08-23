@@ -13,11 +13,10 @@ jobs:
 
   smoke:
     name: ${{ matrix.name }}
-    uses: sanko/workflow-testing/.github/workflows/unified-tester.yml@v1
+    uses: sanko/workflow-testing/.github/workflows/run-direct.yml@main
     secrets: inherit
     with:
       platform_name: ${{ matrix.name }}
-      runner_type: 'direct'
       os: ${{ matrix.os }}
       arch: ${{ matrix.arch }}
       toolchain: 'gcc'
@@ -45,11 +44,10 @@ jobs:
 
   bsd-smoke:
     name: freebsd-x86_64
-    uses: sanko/workflow-testing/.github/workflows/unified-tester.yml@v1
+    uses: sanko/workflow-testing/.github/workflows/run-vm.yml@main
     secrets: inherit
     with:
       platform_name: freebsd
-      runner_type: 'vm'
       os: 'freebsd'
       os_version: '15.0'
       arch: 'x86_64'
