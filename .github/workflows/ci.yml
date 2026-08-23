@@ -21,6 +21,7 @@ jobs:
       arch: ${{ matrix.arch }}
       toolchain: 'gcc'
       prepare: ${{ matrix.prepare }}
+      variant: ${{ matrix.variant }}
       task: |
         perl -V
         perl hello.pl
@@ -41,6 +42,11 @@ jobs:
             arch: 'x86_64'
             # Windows Git Bash ships no perl; install Strawberry Perl first.
             prepare: 'choco install strawberryperl'
+          - name: 'linux-x64-longdoubles'
+            os: 'ubuntu-latest'
+            arch: 'x86_64'
+            prepare: ''
+            variant: 'longdoubles'
 
   bsd-smoke:
     name: freebsd-x86_64
@@ -61,26 +67,4 @@ jobs:
     name: Summary
     if: always()
     needs: [smoke, bsd-smoke]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download all result artifacts
-        uses: actions/download-artifact@v8.0.1
-        with:
-          pattern: result-artifact-*
-          path: results/
-          merge-multiple: true
-
-      - name: Generate Job Summary from Artifacts
-        shell: bash
-        run: |
-          echo "| Setup | Result |" >> $GITHUB_STEP_SUMMARY
-          echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
-          if [ -d "results" ] && [ -n "$(ls -A results)" ]; then
-            find results -type f -name "*.result" | sort | while IFS= read -r file; do
-              result=$(cat "$file")
-              icon=$([[ $result == 'success' ]] && echo ':white_check_mark:' || echo ':x:')
-              echo "| \`$(basename "$file" .result)\` | $icon $result |" >> $GITHUB_STEP_SUMMARY
-            done
-          else
-            echo "| All jobs | | No result data found. :x: |" >> $GITHUB_STEP_SUMMARY
-          fi
+    uses: sanko/workflow-testing/.github/workflows/results-summary.yml@main
