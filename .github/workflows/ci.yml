@@ -21,8 +21,8 @@ jobs:
         perl hello.pl
       matrix: >
         [
-          {"platform_name":"ubuntu","os":"ubuntu-latest","arch":"x86_64","toolchain":"gcc"},
-          {"platform_name":"ubuntu","os":"ubuntu-latest","arch":"x86_64","toolchain":"gcc","variant":"longdoubles"}
+          {"platform_name":"ubuntu","os":"ubuntu-latest","arch":"x86_64","toolchain":"gcc","perl_version":"5.40.5"},
+          {"platform_name":"ubuntu","os":"ubuntu-latest","arch":"x86_64","toolchain":"gcc","perl_version":"5.42.3","configure":"-Duselongdouble","variant":"longdoubles"}
         ]
 
   macos:
@@ -35,7 +35,7 @@ jobs:
         perl hello.pl
       matrix: >
         [
-          {"platform_name":"macos","os":"macos-15","arch":"aarch64","toolchain":"gcc"}
+          {"platform_name":"macos","os":"macos-15","arch":"aarch64","toolchain":"gcc","perl_version":"5.42.3"}
         ]
 
   windows:
@@ -62,7 +62,7 @@ jobs:
         perl hello.pl
       matrix: >
         [
-          {"platform_name":"freebsd","os":"freebsd","arch":"x86_64","toolchain":"clang","prepare":"pkg install -y perl5 llvm"}
+          {"platform_name":"freebsd","os":"freebsd","arch":"x86_64","toolchain":"clang","prepare":"pkg install -y gmake","perl_version":"5.40.5"}
         ]
 
   results:
